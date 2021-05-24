@@ -18,14 +18,21 @@
 
      <!-- Main Input For Receiving Query to our ML -->
     <form action="{{ url_for('predict')}}"method="post">
-      <input type="text" name="movie" placeholder="Movie" required="required" />
+      <input type="text" name="movie" placeholder="Enter a movie you like" required="required" />
        
-        <button type="submit" class="btn btn-primary btn-block btn-large">Predict</button>
+        <button type="submit" class="btn btn-primary btn-block btn-large">Recommend Similar</button>
     </form>
 
    <br>
-   <br>
-   {{ prediction_text }}
+   <!-- {{ prediction_text }} -->
+   
+   <p> {{in_movie}} </p>
+
+<p> {{might_like}} </p>
+
+     {% for recomm in recomms %}
+      <p>{{ recomm }} </p>
+  {% endfor %}
 
  </div>
 

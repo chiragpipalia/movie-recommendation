@@ -5,8 +5,8 @@ import pandas as pd
 import difflib
 
 app = Flask(__name__)
-movie_user = pickle.load(open('movie_user.df', 'rb'))
-dff =  pickle.load(open('dff.df', 'rb'))
+cosine_sim = pickle.load(open('cosine_sim.pickle', 'rb'))
+movies = pickle.load(open('movies.pickle', 'rb'))
 
 @app.route('/')
 def home():
@@ -18,24 +18,25 @@ def predict():
     '''
     For rendering results on HTML GUI
     '''
+    #in_movie = [str(x) for x in request.form.values()][0]
     in_movie = [str(x) for x in request.form.values()][0]
-    mo = movie_user.columns
+    mo = movies.newname.tolist()
     in_movie = difflib.get_close_matches(in_movie, mo)[0]
-
-    correlations = movie_user.corrwith(movie_user[in_movie])
-    recommendation = pd.DataFrame(correlations,columns=['Correlation'])
-    recommendation.dropna(inplace=True)
-    recommendation = recommendation.join(dff['tot_ratings'])
-
-
-    recc = recommendation[recommendation['tot_ratings']>10].sort_values('Correlation',ascending=False).reset_index()
-    output = recc.title[1]
-
-    #output = round(prediction[0], 2)
-    #output = round(2414214.245,2)
-
-    return render_template('index.html', prediction_text=f'Input movie: {in_movie}\nRecommended movie: {output}')
-
+    movie_idx = dict(zip(movies['newname'], list(movies.index)))
+    #title = movie_finder(title_string)
+    idx = movie_idx[in_movie]
+    sim_scores = list(enumerate(cosine_sim[idx]))
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+    n_recommendations = 5
+    sim_scores = sim_scores[1:(n_recommendations+1)]
+    similar_movies = [i[0] for i in sim_scores]
+    #output = f"Recommendations for {in_movie}:\n"
+    recommendations = movies["newname"].iloc[similar_movies].tolist()
+    print_in_movie = 'Because you watched '+ in_movie
+    might_like = 'You might also like'
+    return render_template('index.html', in_movie = print_in_movie, might_like = might_like, recomms = recommendations)
+    ##return render_template('index.html', prediction_text=f'Input movie: {in_movie}\nRecommended movies:\n{output}')
+  
 
 if __name__ == "__main__":
     app.run(debug=True)
