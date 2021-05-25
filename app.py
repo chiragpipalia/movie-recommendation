@@ -9,7 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 app = Flask(__name__)
 ##movie_features = pickle.load(open('movie_features.pickle', 'rb'))
-cosine_sim = np.load('cosine_sim.npz')['a']
+cosine_sim = pickle.load(open('cosine_sim1k.pickle', 'rb'))
 movies = pickle.load(open('movies.pickle', 'rb'))
 
 @app.route('/')
@@ -22,9 +22,8 @@ def predict():
     '''
     For rendering results on HTML GUI
     '''
-    #in_movie = [str(x) for x in request.form.values()][0]
     in_movie = [str(x) for x in request.form.values()][0]
-    mo = movies.newname.tolist()
+    mo = list(movies['newname'])
     in_movie = difflib.get_close_matches(in_movie, mo)[0]
     movie_idx = dict(zip(movies['newname'], list(movies.index)))
     #title = movie_finder(title_string)
